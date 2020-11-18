@@ -1,14 +1,7 @@
-import json
-
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
-
-# Create your views here.
-
 from common import errors
 from common.utils import is_phone_num
 from libs.http import render_json
-
+from user import logics
 
 def verify_phone(request):
     """
@@ -21,6 +14,12 @@ def verify_phone(request):
 
     if is_phone_num(phone_num):
         # 号码格式正确
-        return render_json()
+        if logics.send_verify_code(phone_num):
+            # 验证码生成发送
+            return render_json()
+        else:
+            return render_json(code = errors.SMS_SEND_ERR)
+            # 返回错误码
     else:
         return render_json(code=errors.PHONE_NUM_ERR)
+        # 返回错误码
